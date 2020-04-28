@@ -30,6 +30,25 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   /**************************************************************************** */
 
   //! END @TODO1
+
+  app.get( "/filteredimage", async ( req, res ) => {
+    const image_url: string = req.query.image_url
+
+    if (!image_url) {
+      return res.status(400).send({ message: 'Image_url is required' });
+    }
+
+    try {
+      const filtered_path: string = await filterImageFromURL(image_url)
+      res.status(200).sendFile(filtered_path)
+      res.on('finish', async () => {
+        await deleteLocalFiles([filtered_path])
+      })
+    } catch(e) {
+      return res.status(422).send({ message: 'Unprocessable entity' });
+    }
+
+  });
   
   // Root Endpoint
   // Displays a simple message to the user
